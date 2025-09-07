@@ -1,57 +1,37 @@
 package main
 
 import (
-	"errors"
 	"fmt"
-	"os"
-	"strconv"
+
+	"example.com/bank/fileOps"
+	"github.com/Pallinder/go-randomdata"
 )
 
 const accountBalanceFile = "balance.txt"
 
-func getBalanceFromFile() (float64, error) {
-	data, err := os.ReadFile(accountBalanceFile)
-
-	if err != nil {
-		return 1000, errors.New("Failed to read balance file.")
-	}
-
-	balanceText := string(data)
-	balance, err := strconv.ParseFloat(balanceText, 64)
-
-	if err != nil {
-		return 1000, errors.New("Failed to parse balance file.")
-	}
-
-	return balance, nil
-}
-
-func writeBalanceToFile(balance float64) {
-	balanceText := fmt.Sprint(balance)
-	os.WriteFile(accountBalanceFile, []byte(balanceText), 0664)
-}
-
 func main() {
-	var accountBalance, err = getBalanceFromFile()
+	var accountBalance, err = fileOps.GetFloatFromFile(accountBalanceFile, 1000)
 
 	if err != nil {
 		fmt.Println("Error found: ", err)
 		panic("Can't continue, sorry !")
 	}
 
+	fmt.Println("Welcome to go bank !")
+	fmt.Println("Reach us 24/7", randomdata.PhoneNumber())
+
 	for {
-		fmt.Println("Welcome to go bank !")
-		fmt.Println("What do you want to do ?")
-		fmt.Println("1. Check Balance")
-		fmt.Println("2. Deposit Money")
-		fmt.Println("3. Withdraw Money")
-		fmt.Println("4. Exit")
+		userOptions()
 
 		var choice int
 		fmt.Printf("Your choice: ")
 		fmt.Scan(&choice)
 
 		switch choice {
+		case 0:
+			fmt.Println("Exited your account successfully !")
+			return
+
 		case 1:
 			fmt.Println("Your balance is:", accountBalance)
 
@@ -68,7 +48,7 @@ func main() {
 
 			accountBalance += depositAmount
 			fmt.Println("The account balance have been updated ! New Amount is:", accountBalance)
-			writeBalanceToFile(accountBalance)
+			fileOps.WriteFloatToFile(accountBalance, accountBalanceFile)
 
 		case 3:
 			fmt.Print("How much would you like to withdraw ? ")
@@ -86,11 +66,11 @@ func main() {
 			}
 			accountBalance -= withdrawAmount
 			fmt.Println("The account balance have been updated ! New Amount is:", accountBalance)
-			writeBalanceToFile(accountBalance)
+			fileOps.WriteFloatToFile(accountBalance, accountBalanceFile)
 
 		case 4:
-			fmt.Println("Exited your account successfully !")
-			return
+			fmt.Println("Help Line Number: ", randomdata.PhoneNumber())
+			continue
 
 		default:
 			fmt.Println("Wrong choice selected. Exitinng ...")
